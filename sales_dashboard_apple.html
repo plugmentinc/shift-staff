@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAVE 成績ボード</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F2F2F7;--card:#FFFFFF;--card2:#F9F9FB;--border:rgba(0,0,0,.06);
+  --text:#1C1C1E;--text2:#3A3A3C;--text3:#8E8E93;
+  --blue:#007AFF;--green:#34C759;--orange:#FF9500;--red:#FF3B30;
+  --gold:#FFB800;--silver:#8E8E93;--bronze:#A0522D;
+  --shadow:0 2px 20px rgba(0,0,0,.08);--shadow-lg:0 8px 40px rgba(0,0,0,.12);
+  --radius:18px;--radius-sm:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',-apple-system,sans-serif;min-height:100vh;}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(145deg,#007AFF,#5856D6);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:900;box-shadow:0 4px 16px rgba(0,122,255,.35);}
+.logo-text{font-size:20px;font-weight:700;letter-spacing:-.4px;}
+.logo-sub{font-size:12px;color:var(--text3);margin-top:1px;font-weight:500;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.clock{font-size:14px;font-weight:600;color:var(--text2);font-variant-numeric:tabular-nums;letter-spacing:.5px;}
+.btn-refresh{padding:8px 16px;border-radius:100px;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;box-shadow:0 2px 8px rgba(0,122,255,.3);}
+.btn-refresh:hover{background:#0063CC;transform:translateY(-1px);}
+.sync-row{display:flex;align-items:center;gap:6px;margin-bottom:20px;font-size:12px;font-weight:500;color:var(--text3);}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.sdot.ok{background:var(--green);}
+.sdot.err{background:var(--red);}
+.sdot.spin{background:var(--orange);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.controls{display:flex;align-items:center;gap:6px;margin-bottom:24px;flex-wrap:wrap;background:var(--card);border-radius:var(--radius);padding:6px;box-shadow:var(--shadow);}
+.tbtn{padding:8px 18px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--text3);font-weight:600;font-size:14px;cursor:pointer;transition:.18s;font-family:inherit;}
+.tbtn:hover{color:var(--text);}
+.tbtn.on{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(0,122,255,.3);}
+.ctrl-dates{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.date-in{padding:7px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:600;font-family:inherit;outline:none;cursor:pointer;}
+.date-in:focus{border-color:var(--blue);}
+.date-sep{font-size:13px;color:var(--text3);font-weight:500;}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.kpi{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);}
+.kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+.kpi-val{font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+.kpi-lbl{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.2px;}
+.sec-ttl{font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px;letter-spacing:-.3px;}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:28px;}
+.pod-item{text-align:center;flex:1;max-width:240px;}
+.pod-medal{font-size:28px;margin-bottom:8px;display:block;}
+.pod-card{border-radius:20px 20px 0 0;padding:22px 14px 28px;box-shadow:var(--shadow-lg);transition:.2s;}
+.pod-card:hover{transform:translateY(-4px);}
+.pod-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto 10px;color:#fff;}
+.pod-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.pod-score{font-size:40px;font-weight:700;letter-spacing:-1.5px;line-height:1;}
+.pod-score-lbl{font-size:11px;font-weight:600;color:var(--text3);margin-top:3px;}
+.pod-ap{font-size:12px;font-weight:600;color:var(--text3);margin-top:6px;}
+.p1 .pod-card{background:linear-gradient(160deg,#FFF8E1,#FFFDE7);min-height:180px;}
+.p1 .pod-av{background:linear-gradient(135deg,#FFB800,#FF8C00);}
+.p1 .pod-score{color:var(--gold);}
+.p2 .pod-card{background:linear-gradient(160deg,#F5F5F7,#FAFAFA);min-height:150px;}
+.p2 .pod-av{background:linear-gradient(135deg,#8E8E93,#636366);}
+.p2 .pod-score{color:var(--silver);}
+.p3 .pod-card{background:linear-gradient(160deg,#FFF3EE,#FFF8F5);min-height:125px;}
+.p3 .pod-av{background:linear-gradient(135deg,#CD7F32,#A0522D);}
+.p3 .pod-score{color:var(--bronze);}
+.tbl-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:28px;}
+.tbl-hdr{padding:16px 22px;border-bottom:1px solid var(--border);}
+.tbl-hdr-ttl{font-size:16px;font-weight:700;}
+.tbl-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:680px;}
+thead th{padding:10px 14px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:var(--card2);border-bottom:1px solid var(--border);}
+thead th:first-child{text-align:left;padding-left:22px;}
+tbody tr{border-bottom:1px solid var(--border);transition:.12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--card2);}
+td{padding:13px 14px;text-align:center;font-size:14px;}
+td:first-child{text-align:left;padding-left:22px;}
+.rank-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-size:13px;font-weight:700;margin-right:10px;}
+.rk1{background:#FFF3CD;color:#B8860B;}
+.rk2{background:#F0F0F5;color:var(--silver);}
+.rk3{background:#FFF0E8;color:var(--bronze);}
+.rkn{background:var(--card2);color:var(--text3);}
+.name-cell{font-weight:700;font-size:14px;}
+.chip{display:inline-block;padding:4px 11px;border-radius:100px;font-weight:700;font-size:13px;}
+.zero{color:var(--text3);font-size:13px;}
+.ok-strong{font-size:16px;font-weight:700;}
+.rate-cell{display:flex;align-items:center;gap:6px;justify-content:center;}
+.rate-bg{width:44px;height:5px;background:#E5E5EA;border-radius:100px;overflow:hidden;}
+.rate-fill{height:100%;border-radius:100px;background:var(--green);}
+.rate-txt{font-size:12px;font-weight:700;color:var(--green);white-space:nowrap;}
+.total-row td{background:linear-gradient(135deg,#F2F2F7,#E8E8ED);font-weight:700;border-top:2px solid var(--border);}
+.status-card{background:var(--card);border-radius:var(--radius);padding:52px;text-align:center;box-shadow:var(--shadow);}
+@media(max-width:700px){.kpi-grid{grid-template-columns:1fr 1fr;}.podium{gap:6px;}.pod-score{font-size:32px;}}
+@media(max-width:460px){.kpi-grid{grid-template-columns:1fr 1fr;}.controls{flex-direction:column;align-items:flex-start;}.ctrl-dates{margin-left:0;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">W</div>
+      <div>
+        <div class="logo-text">WAVE 成績ボード</div>
+        <div class="logo-sub">PLUGMENT HOLDINGS</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="btn-refresh" onclick="fetchData()">更新</button>
+    </div>
+  </header>
+  <div class="sync-row">
+    <div class="sdot spin" id="sdot"></div>
+    <span id="stext">スプレッドシートに接続中...</span>
+  </div>
+  <div class="controls">
+    <button class="tbtn on" id="btn-day" onclick="setView('day')">当日</button>
+    <button class="tbtn" id="btn-month" onclick="setView('month')">月間</button>
+    <button class="tbtn" id="btn-range" onclick="setView('range')">期間指定</button>
+    <div class="ctrl-dates">
+      <div id="dayCtrl">
+        <input type="date" class="date-in" id="todayPick" onchange="onTodayChange(this.value)">
+      </div>
+      <div id="monthCtrl" style="display:none">
+        <input type="month" class="date-in" id="monthPick" onchange="onMonthChange(this.value)">
+      </div>
+      <div id="rangeCtrl" style="display:none;align-items:center;gap:8px;">
+        <input type="date" class="date-in" id="startPick" onchange="onRangeChange()">
+        <span class="date-sep">〜</span>
+        <input type="date" class="date-in" id="endPick" onchange="onRangeChange()">
+      </div>
+    </div>
+  </div>
+  <div id="mainContent">
+    <div class="status-card">
+      <div style="font-size:36px;margin-bottom:14px">📊</div>
+      <div style="font-size:15px;color:var(--text3);font-weight:500">データを取得中...</div>
+    </div>
+  </div>
+</div>
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyYMo_471IsBfCSv7dvjfg4QdIpdl6WISwivdLw9HM5DAQYhYieGMmwF8M81DYEXxliKg/exec';
+const STAFF_LIST = ['田口 竜毅','市川 春樹','福島 柚希','長門 海凪','高崎 登央','須貝 明咲','山内 康太朗','立木 優杏','竹ケ原 晴翔','松本 乃々','近田 詩叶','上池 櫂吏'];
+const OK_TYPES = [
+  {key:'ap',   label:'アポ',   color:'#007AFF',bg:'#E8F4FF'},
+  {key:'ok20', label:'20GOK', color:'#34C759',bg:'#E8F9EE'},
+  {key:'ok50', label:'50GOK', color:'#5AC8FA',bg:'#E5F6FD'},
+  {key:'ok100',label:'100GOK',color:'#FF9500',bg:'#FFF4E5'},
+  {key:'okoki',label:'置き型',color:'#AF52DE',bg:'#F5EAFC'},
+  {key:'ok200',label:'200GOK',color:'#FF3B30',bg:'#FFE8E7'},
+];
+let rawData=null,currentView='day';
+let currentMonth2=new Date().toISOString().slice(0,7);
+let currentToday=todayStr(),currentStart=firstOfMonth(),currentEnd=todayStr();
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function firstOfMonth(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;}
+function pad(n){return String(n).padStart(2,'0');}
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('todayPick').value=currentToday;
+  document.getElementById('monthPick').value=currentMonth2;
+  document.getElementById('startPick').value=currentStart;
+  document.getElementById('endPick').value=currentEnd;
+  fetchData();
+  setInterval(fetchData,5*60*1000);
+  setInterval(tickClock,1000);tickClock();
+});
+function tickClock(){const n=new Date();document.getElementById('clock').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;}
+async function fetchData(){
+  if(rawData){render();}
+  setSyncState('spin',rawData?'バックグラウンド更新中...':'取得中...');
+  try{
+    let url=GAS_URL+'?t='+Date.now();
+    if(currentView==='day'){
+      url+=`&today=${currentToday}`;
+    } else if(currentView==='month'){
+      const [y,m]=currentMonth2.split('-');
+      const last=new Date(y,m,0).getDate();
+      url+=`&today=${currentToday}&start=${currentMonth2}-01&end=${currentMonth2}-${String(last).padStart(2,'0')}`;
+    } else {
+      url+=`&today=${currentToday}&start=${currentStart}&end=${currentEnd}`;
+    }
+    const res=await fetch(url);
+    const json=await res.json();
+    if(json.error)throw new Error(json.error);
+    rawData=json.data;
+    setSyncState('ok','最終更新: '+new Date().toLocaleTimeString('ja-JP'));
+    render();
+  }catch(e){
+    setSyncState('err','エラー: '+e.message);
+    if(!rawData){document.getElementById('mainContent').innerHTML=`<div class="status-card"><div style="font-size:36px;margin-bottom:14px">⚠️</div><div style="font-size:15px;color:var(--red);font-weight:700">接続エラー</div><div style="font-size:13px;color:var(--text3);margin-top:8px">${e.message}</div></div>`;}
+  }
+}
+function setSyncState(s,t){document.getElementById('sdot').className='sdot '+s;document.getElementById('stext').textContent=t;}
+function setView(v){
+  currentView=v;
+  // 月間タブを選んだら今月を自動セット
+  if(v==='month'){
+    currentMonth2=new Date().toISOString().slice(0,7);
+    document.getElementById('monthPick').value=currentMonth2;
+  }
+  document.getElementById('btn-day').classList.toggle('on',v==='day');
+  document.getElementById('btn-month').classList.toggle('on',v==='month');
+  document.getElementById('btn-range').classList.toggle('on',v==='range');
+  document.getElementById('dayCtrl').style.display=v==='day'?'':'none';
+  document.getElementById('monthCtrl').style.display=v==='month'?'':'none';
+  document.getElementById('rangeCtrl').style.display=v==='range'?'flex':'none';
+  if(rawData)render();
+  fetchData();
+}
+function onTodayChange(v){currentToday=v;fetchData();}
+function onMonthChange(v){currentMonth2=v;fetchData();}
+function onRangeChange(){
+  currentStart=document.getElementById('startPick').value;
+  currentEnd=document.getElementById('endPick').value;
+  if(currentStart&&currentEnd)fetchData();
+}
+function getRows(){
+  if(!rawData)return[];
+  return STAFF_LIST.map(name=>{
+    const src=currentView==='day'?rawData[name]?.day:rawData[name]?.month; // month/rangeはmonthデータ
+    if(!src)return{name,ap:0,ok20:0,ok50:0,ok100:0,okoki:0,ok200:0,_ok:0,_rate:null};
+    const ok=(src.ok20||0)+(src.ok50||0)+(src.ok100||0)+(src.okoki||0)+(src.ok200||0);
+    return{name,...src,_ok:ok,_rate:src._rate};
+  }).sort((a,b)=>b._ok-a._ok||b.ap-a.ap);
+}
+function teamOf(rows){
+  const t={};
+  OK_TYPES.forEach(k=>t[k.key]=rows.reduce((s,r)=>s+(r[k.key]||0),0));
+  t._ok=rows.reduce((s,r)=>s+r._ok,0);
+  const ap=t.ap||0,ok=t._ok;
+  t._rate=ap>0?Math.round(ok/ap*100):null;
+  return t;
+}
+function render(){
+  const rows=getRows(),team=teamOf(rows);
+  const isRange=currentView==='range';
+  const isMonth=currentView==='month';
+  const period=isRange?`${currentStart} 〜 ${currentEnd}`:isMonth?currentMonth2:currentToday;
+  let html='';
+  html+=`<div class="kpi-grid">
+    <div class="kpi"><div class="kpi-icon" style="background:#E8F4FF">📞</div><div class="kpi-val" style="color:var(--blue)">${team.ap||0}</div><div class="kpi-lbl">チーム総アポ</div></div>
+    <div class="kpi"><div class="kpi-icon" style="background:#E8F9EE">✅</div><div class="kpi-val" style="color:var(--green)">${team._ok}</div><div class="kpi-lbl">チーム総OK</div></div>
+    <div class="kpi"><div class="kpi-icon" style="background:#FFF4E5">📈</div><div class="kpi-val" style="color:var(--orange)">${team._rate!=null?team._rate+'%':'-'}</div><div class="kpi-lbl">チーム成約率</div></div>
+  </div>`;
+  const top=rows.slice(0,3);
+  while(top.length<3)top.push(null);
+  const ord=[top[1],top[0],top[2]],cls=['p2','p1','p3'],med=['🥈','🥇','🥉'],heights=[150,180,125];
+  html+=`<div class="sec-ttl">🏆 ランキング</div><div class="podium">`;
+  ord.forEach((r,i)=>{
+    if(!r){html+=`<div class="pod-item ${cls[i]}"><div class="pod-card" style="min-height:${heights[i]}px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px">-</div></div>`;return;}
+    const ini=r.name.replace(/\s/g,'')[0];
+    html+=`<div class="pod-item ${cls[i]}"><span class="pod-medal">${med[i]}</span><div class="pod-card"><div class="pod-av">${ini}</div><div class="pod-name">${r.name}</div><div class="pod-score">${r._ok}</div><div class="pod-score-lbl">合計OK</div><div class="pod-ap">アポ ${r.ap||0}件</div></div></div>`;
+  });
+  html+=`</div>`;
+  html+=`<div class="tbl-wrap"><div class="tbl-hdr"><div class="tbl-hdr-ttl">${currentView==='month'?'月間成績':isRange?'期間集計':'当日成績'}（${period}）</div></div>
+    <div class="tbl-scroll"><table>
+      <thead><tr>
+        <th style="text-align:left;padding-left:22px">名前</th>
+        ${OK_TYPES.map(t=>`<th style="color:${t.color}">${t.label}</th>`).join('')}
+        <th>合計OK</th><th>成約率</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map((r,i)=>{
+          const rc=i===0?'rk1':i===1?'rk2':i===2?'rk3':'rkn';
+          const rate=r._rate!=null?r._rate+'%':'-';
+          const pct=r._rate!=null?Math.min(r._rate,100):0;
+          return `<tr>
+            <td><span class="rank-num ${rc}">${i+1}</span><span class="name-cell">${r.name}</span></td>
+            ${OK_TYPES.map(t=>{const v=r[t.key]||0;return v>0?`<td><span class="chip" style="background:${t.bg};color:${t.color}">${v}</span></td>`:`<td class="zero">—</td>`;}).join('')}
+            <td><span class="ok-strong" style="color:${r._ok>0?'var(--text)':'var(--text3)'}">${r._ok}</span></td>
+            <td><div class="rate-cell"><div class="rate-bg"><div class="rate-fill" style="width:${pct}%"></div></div><span class="rate-txt">${rate}</span></div></td>
+          </tr>`;
+        }).join('')}
+        <tr class="total-row">
+          <td style="padding-left:22px">合計</td>
+          ${OK_TYPES.map(t=>`<td style="color:${t.color}">${team[t.key]||0}</td>`).join('')}
+          <td style="font-size:16px">${team._ok}</td>
+          <td class="rate-txt">${team._rate!=null?team._rate+'%':'-'}</td>
+        </tr>
+      </tbody>
+    </table></div></div>`;
+  document.getElementById('mainContent').innerHTML=html;
+}
+</script>
+</body>
+</html>
